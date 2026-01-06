@@ -1,0 +1,8 @@
+*.tap
+*.tzx
+*.sna
+*.z80
+*.lst
+*.sym
+build/
+.DS_Store
