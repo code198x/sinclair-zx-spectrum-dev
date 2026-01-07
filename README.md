@@ -4,7 +4,7 @@ Docker-based development environment for ZX Spectrum programming with Sinclair B
 
 ## 🎯 What's Included
 
-- **sjasmplus** - Modern Z80 cross-assembler
+- **pasmonext** - Z80 cross-assembler (Pasmo fork with enhancements)
 - **Fuse Emulator** - Complete ZX Spectrum emulator (48K/128K support)
 - **zmakebas** - Convert BASIC text files to TAP format
 - **Build tools** - make, git, and essential utilities
@@ -42,7 +42,7 @@ docker run -it --rm -v $(pwd):/workspace code198x/sinclair-zx-spectrum:latest
 
 # Or run a specific command
 docker run --rm -v $(pwd):/workspace code198x/sinclair-zx-spectrum:latest \
-  sjasmplus program.asm
+  pasmonext program.asm
 ```
 
 ## 📚 Examples
@@ -78,7 +78,7 @@ make run      # Run in Fuse
 
 ```bash
 # Assemble a program
-sjasmplus --lst=program.lst program.asm
+pasmonext --lst=program.lst program.asm
 
 # Output is typically program.tap (for tape loading)
 # Or program.sna (snapshot format)
@@ -134,7 +134,7 @@ This environment is designed for use with the [Code Like It's 198x](https://code
 ```bash
 # Build in container
 docker run --rm -v $(pwd):/workspace ghcr.io/code198x/sinclair-zx-spectrum:latest \
-  sjasmplus program.asm
+  pasmonext program.asm
 
 # Run on host (install Fuse natively)
 fuse program.tap
@@ -190,7 +190,7 @@ docker run --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix ...
 For automated builds and CI/CD:
 ```bash
 # Just assemble, don't run emulator
-sjasmplus program.asm
+pasmonext program.asm
 ```
 
 ### File Permissions
@@ -214,7 +214,7 @@ SRC = $(TARGET).asm
 all: $(TARGET).tap
 
 $(TARGET).tap: $(SRC)
-	sjasmplus --lst=$(TARGET).lst $<
+	pasmonext --lst=$(TARGET).lst $<
 
 run: $(TARGET).tap
 	fuse --machine 48 $<
