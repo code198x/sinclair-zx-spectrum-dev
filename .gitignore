@@ -1,8 +1,24 @@
+# ZX Spectrum build artifacts
 *.tap
 *.tzx
 *.sna
 *.z80
 *.lst
 *.sym
-build/
+
+# Emulator files
+*.rzx
+
+# macOS
 .DS_Store
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Build directories
+build/
+dist/
