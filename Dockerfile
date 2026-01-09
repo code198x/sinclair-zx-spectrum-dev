@@ -21,6 +21,10 @@ RUN apt-get update && apt-get install -y \
     nano \
     # Utilities
     make \
+    # Screenshot capture (headless)
+    xvfb \
+    imagemagick \
+    xdotool \
     && rm -rf /var/lib/apt/lists/*
 
 # Build PasmoNext from source
@@ -29,6 +33,10 @@ RUN git clone --depth 1 https://github.com/Ckirby101/pasmoNext.git /tmp/pasmoNex
     g++ -O2 -o pasmonext *.cpp && \
     mv pasmonext /usr/local/bin/ && \
     rm -rf /tmp/pasmoNext
+
+# Add screenshot capture script
+COPY scripts/spectrum-screenshot.sh /usr/local/bin/spectrum-screenshot
+RUN chmod +x /usr/local/bin/spectrum-screenshot
 
 # Create workspace directory
 WORKDIR /workspace
@@ -46,7 +54,9 @@ echo "  • zmakebas        - Convert BASIC text to TAP"\n\
 echo ""\n\
 echo "🚀 Quick start:"\n\
 echo "  pasmonext --tapbas program.asm program.tap  # Assemble to TAP"\n\
+echo "  pasmonext --sna program.asm program.sna     # Assemble to snapshot"\n\
 echo "  fuse --machine 48 program.tap               # Run in emulator"\n\
+echo "  spectrum-screenshot prog.sna out.png        # Headless screenshot"\n\
 echo "  zmakebas -o program.tap -n GAME source.bas  # Convert BASIC"\n\
 echo ""\n\
 echo "📚 Examples available in /workspace/examples/"\n\

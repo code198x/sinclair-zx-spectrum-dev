@@ -87,6 +87,33 @@ pasmonext --lst=program.lst program.asm
 fuse --machine 48 program.tap
 ```
 
+### Screenshot Capture (Headless)
+
+Capture screenshots from programs without a display:
+
+```bash
+# Capture from snapshot (instant load)
+docker run --rm -v $(pwd):/workspace zx-spectrum-dev \
+  spectrum-screenshot program.sna screenshot.png
+
+# Capture from tape (needs longer wait for loading)
+docker run --rm -v $(pwd):/workspace zx-spectrum-dev \
+  spectrum-screenshot program.tap screenshot.png --wait 10
+
+# Use 128K Spectrum
+docker run --rm -v $(pwd):/workspace zx-spectrum-dev \
+  spectrum-screenshot program.sna screenshot.png --machine 128
+```
+
+**Options:**
+- `--wait SECONDS` - Time to wait before capture (default: 3 for .sna, 8 for .tap)
+- `--machine TYPE` - Spectrum model: 48, 128, plus2, plus3 (default: 48)
+
+**Tips:**
+- Use `.sna` snapshots for faster, more reliable screenshots
+- Build with `pasmonext --sna program.asm program.sna` and include `end start` directive
+- Increase `--wait` if your program needs time to initialise
+
 ### BASIC Development
 
 ```bash
