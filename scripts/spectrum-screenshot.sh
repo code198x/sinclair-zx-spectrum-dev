@@ -89,8 +89,8 @@ else
     exit 1
 fi
 
-# Start virtual framebuffer
-Xvfb :${DISPLAY_NUM} -screen 0 800x600x24 >/dev/null 2>&1 &
+# Start virtual framebuffer - large enough for Fuse window with room to spare
+Xvfb :${DISPLAY_NUM} -screen 0 1024x768x24 >/dev/null 2>&1 &
 XVFB_PID=$!
 sleep 1
 
@@ -104,12 +104,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Run Fuse
-timeout $((WAIT_TIME + 5))s fuse --machine "$MACHINE" --no-sound --auto-load $LOAD_OPT "$INPUT_FILE" >/dev/null 2>&1 &
+# Run Fuse with SDL backend at 2x scale
+timeout $((WAIT_TIME + 5))s fuse-sdl --machine "$MACHINE" --no-sound --auto-load -g 2x $LOAD_OPT "$INPUT_FILE" >/dev/null 2>&1 &
 FUSE_PID=$!
 
-# Wait for Fuse to start
-sleep 1
+# Wait for Fuse to start and create its window
+sleep 2
 
 # Dismiss ROM warning dialog (if any)
 xdotool key Return 2>/dev/null || true
@@ -117,11 +117,19 @@ xdotool key Return 2>/dev/null || true
 # Wait for program to run
 sleep "$WAIT_TIME"
 
-# Capture screenshot
-import -window root "$OUTPUT_FILE"
+# Find the Fuse window and capture it directly
+FUSE_WINDOW=$(xdotool search --name "Fuse" 2>/dev/null | head -1)
 
-# Crop to just the Spectrum display area (approximately)
-# The Fuse window is typically centered in the 800x600 virtual screen
-# We can optionally crop to the actual display area
+if [[ -n "$FUSE_WINDOW" ]]; then
+    # Brief pause to ensure window is fully rendered
+    sleep 0.5
+    # Capture the Fuse window content
+    import -window "$FUSE_WINDOW" "$OUTPUT_FILE"
+else
+    echo "Error: Could not find Fuse window"
+    exit 1
+fi
 
-echo "Screenshot saved: $OUTPUT_FILE"
+# Report actual dimensions
+DIMENSIONS=$(identify -format "%wx%h" "$OUTPUT_FILE" 2>/dev/null || echo "unknown")
+echo "Screenshot saved: $OUTPUT_FILE ($DIMENSIONS)"
