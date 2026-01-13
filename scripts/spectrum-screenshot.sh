@@ -9,11 +9,13 @@
 # Options:
 #   --wait SECONDS   Wait time before capture (default: 3 for .sna, 8 for .tap)
 #   --machine TYPE   Spectrum model: 48, 128, plus2, plus3 (default: 48)
+#   --input SCRIPT   Run input injection script after program starts
 #
 # Examples:
 #   spectrum-screenshot game.sna screenshot.png
 #   spectrum-screenshot game.tap screenshot.png --wait 10
 #   spectrum-screenshot game.sna screenshot.png --machine 128
+#   spectrum-screenshot game.sna screenshot.png --input /scripts/inputs/claim-cells.sh
 
 set -e
 
@@ -21,6 +23,7 @@ set -e
 WAIT_TIME=""
 MACHINE="48"
 DISPLAY_NUM=99
+INPUT_SCRIPT=""
 
 # Parse arguments
 INPUT_FILE=""
@@ -36,6 +39,10 @@ while [[ $# -gt 0 ]]; do
             MACHINE="$2"
             shift 2
             ;;
+        --input)
+            INPUT_SCRIPT="$2"
+            shift 2
+            ;;
         -h|--help)
             echo "Usage: spectrum-screenshot INPUT OUTPUT [OPTIONS]"
             echo ""
@@ -48,6 +55,7 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  --wait SECONDS   Wait before capture (default: 3 for .sna, 8 for .tap)"
             echo "  --machine TYPE   48, 128, plus2, plus3 (default: 48)"
+            echo "  --input SCRIPT   Run input injection script after program starts"
             echo "  -h, --help       Show this help"
             exit 0
             ;;
@@ -104,8 +112,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Calculate total timeout (wait time + input script time + buffer)
+TOTAL_TIMEOUT=$((WAIT_TIME + 15))
+
 # Run Fuse with SDL backend at 2x scale
-timeout $((WAIT_TIME + 5))s fuse-sdl --machine "$MACHINE" --no-sound --auto-load -g 2x $LOAD_OPT "$INPUT_FILE" >/dev/null 2>&1 &
+timeout ${TOTAL_TIMEOUT}s fuse-sdl --machine "$MACHINE" --no-sound --auto-load -g 2x $LOAD_OPT "$INPUT_FILE" >/dev/null 2>&1 &
 FUSE_PID=$!
 
 # Wait for Fuse to start and create its window
@@ -114,7 +125,16 @@ sleep 2
 # Dismiss ROM warning dialog (if any)
 xdotool key Return 2>/dev/null || true
 
-# Wait for program to run
+# Run input injection script if provided
+if [[ -n "$INPUT_SCRIPT" ]] && [[ -f "$INPUT_SCRIPT" ]]; then
+    echo "Running input script: $INPUT_SCRIPT"
+    bash "$INPUT_SCRIPT" &
+    INPUT_PID=$!
+    # Wait for input script to complete
+    wait $INPUT_PID 2>/dev/null || true
+fi
+
+# Wait for program to run (remaining time)
 sleep "$WAIT_TIME"
 
 # Find the Fuse window and capture it directly

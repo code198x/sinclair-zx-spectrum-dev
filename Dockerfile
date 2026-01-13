@@ -34,9 +34,11 @@ RUN git clone --depth 1 https://github.com/Ckirby101/pasmoNext.git /tmp/pasmoNex
     mv pasmonext /usr/local/bin/ && \
     rm -rf /tmp/pasmoNext
 
-# Add screenshot capture script
+# Add screenshot capture script and input scripts
 COPY scripts/spectrum-screenshot.sh /usr/local/bin/spectrum-screenshot
 RUN chmod +x /usr/local/bin/spectrum-screenshot
+COPY scripts/inputs /scripts/inputs
+RUN chmod +x /scripts/inputs/*.sh
 
 # Create workspace directory
 WORKDIR /workspace
