@@ -2,18 +2,21 @@
 # Input script to skip title and claim some cells for a screenshot
 # Used for Ink War game screenshots (Unit 7+)
 # Uses key down/up events for more reliable input
+#
+# Environment: FUSE_WINDOW is set by spectrum-video.sh
+#
 
-sleep 1
+# Focus the Fuse window first
+xdotool windowactivate --sync "$FUSE_WINDOW" 2>/dev/null || true
+sleep 0.5
 
-# Press space to skip title screen
-xdotool key --delay 100 space
-sleep 1
+# Press 2 to select AI Easy mode (gets us to gameplay fastest)
+xdotool key --window "$FUSE_WINDOW" 2
+sleep 1.5
 
 # Helper function to press a key reliably
 press_key() {
-    xdotool keydown "$1"
-    sleep 0.1
-    xdotool keyup "$1"
+    xdotool key --window "$FUSE_WINDOW" "$1"
     sleep 0.3
 }
 

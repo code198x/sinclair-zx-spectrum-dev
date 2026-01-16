@@ -145,28 +145,30 @@ OUT_EXT="${OUT_EXT,,}"
 
 case "$OUT_EXT" in
     mp4)
-        FFMPEG_CODEC="-c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p"
+        # crop=trunc(iw/2)*2:trunc(ih/2)*2 ensures even dimensions for h264
+        FFMPEG_CODEC="-vf crop=trunc(iw/2)*2:trunc(ih/2)*2 -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p"
         ;;
     webm)
-        FFMPEG_CODEC="-c:v libvpx-vp9 -crf 30 -b:v 0"
+        FFMPEG_CODEC="-vf crop=trunc(iw/2)*2:trunc(ih/2)*2 -c:v libvpx-vp9 -crf 30 -b:v 0"
         ;;
     gif)
-        FFMPEG_CODEC="-vf fps=25,scale=320:-1:flags=lanczos"
+        FFMPEG_CODEC="-vf fps=25,scale=320:-2:flags=lanczos"
         ;;
     *)
         echo "Warning: Unknown output format '$OUT_EXT', using mp4 settings"
-        FFMPEG_CODEC="-c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p"
+        FFMPEG_CODEC="-vf crop=trunc(iw/2)*2:trunc(ih/2)*2 -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p"
         ;;
 esac
 
 # Calculate window size (ZX Spectrum: 256x192 display + 48px border each side = 352x296)
-# Fuse SDL at 2x is 512x384 by default
+# Fuse SDL at 2x is 512x384 by default, but actual window can be 640x480
 WIDTH=$((256 * SCALE))
 HEIGHT=$((192 * SCALE))
 
-# Start virtual framebuffer (add generous padding for window decorations + position offset)
-SCREEN_W=$((WIDTH + 300))
-SCREEN_H=$((HEIGHT + 300))
+# Start virtual framebuffer - Fuse window can be up to 640x480 at position ~250,260
+# Need at least 1024x900 to accommodate window placement
+SCREEN_W=1200
+SCREEN_H=1000
 Xvfb :${DISPLAY_NUM} -screen 0 ${SCREEN_W}x${SCREEN_H}x24 >/dev/null 2>&1 &
 XVFB_PID=$!
 sleep 1
