@@ -21,10 +21,12 @@ RUN apt-get update && apt-get install -y \
     nano \
     # Utilities
     make \
-    # Screenshot capture (headless)
+    # Screenshot and video capture (headless)
     xvfb \
     imagemagick \
     xdotool \
+    openbox \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Build PasmoNext from source
@@ -34,9 +36,10 @@ RUN git clone --depth 1 https://github.com/Ckirby101/pasmoNext.git /tmp/pasmoNex
     mv pasmonext /usr/local/bin/ && \
     rm -rf /tmp/pasmoNext
 
-# Add screenshot capture script and input scripts
+# Add screenshot and video capture scripts
 COPY scripts/spectrum-screenshot.sh /usr/local/bin/spectrum-screenshot
-RUN chmod +x /usr/local/bin/spectrum-screenshot
+COPY scripts/spectrum-video.sh /usr/local/bin/spectrum-video
+RUN chmod +x /usr/local/bin/spectrum-screenshot /usr/local/bin/spectrum-video
 COPY scripts/inputs /scripts/inputs
 RUN chmod +x /scripts/inputs/*.sh
 
@@ -59,6 +62,7 @@ echo "  pasmonext --tapbas program.asm program.tap  # Assemble to TAP"\n\
 echo "  pasmonext --sna program.asm program.sna     # Assemble to snapshot"\n\
 echo "  fuse --machine 48 program.tap               # Run in emulator"\n\
 echo "  spectrum-screenshot prog.sna out.png        # Headless screenshot"\n\
+echo "  spectrum-video prog.sna out.mp4            # Video with input"\n\
 echo "  zmakebas -o program.tap -n GAME source.bas  # Convert BASIC"\n\
 echo ""\n\
 echo "📚 Examples available in /workspace/examples/"\n\
