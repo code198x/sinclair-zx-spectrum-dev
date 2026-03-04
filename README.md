@@ -141,7 +141,7 @@ my-project/
 
 ## 🎓 Learning Resources
 
-This environment is designed for use with the [Code Like It's 198x](https://code198x.stevehill.xyz) educational platform.
+This environment is designed for use with the [Code Like It's 198x](https://code198x.com) educational platform.
 
 **Courses available:**
 - ZX Spectrum BASIC Phase 0 - Game development fundamentals
@@ -300,5 +300,5 @@ MIT License - See LICENSE file for details
 
 Code Like It's 198x teaches retro game development for classic 8-bit and 16-bit systems. This ZX Spectrum environment provides everything needed to start coding for Britain's most iconic home computer.
 
-**Website:** https://code198x.stevehill.xyz
+**Website:** https://code198x.com
 **Course Materials:** https://github.com/code198x/
